@@ -139,11 +139,13 @@ pub mod pallet {
         pub created_at: BlockNumberFor<T>,
     }
 
+	// --- Pallet Definition ---
 	// The `Pallet` struct serves as a placeholder to implement traits, methods and dispatchables
 	// (`Call`s) in this pallet.
 	#[pallet::pallet]
 	pub struct Pallet<T>(_);
 
+	// --- Pallet Configuration ---
 	/// The pallet's configuration trait.
 	///
 	/// All our types and constants a pallet depends on must be declared here.
