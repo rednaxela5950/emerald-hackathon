@@ -157,6 +157,20 @@ pub mod pallet {
 		type RuntimeEvent: From<Event<Self>> + IsType<<Self as frame_system::Config>::RuntimeEvent>;
 		/// A type representing the weights required by the dispatchables of this pallet.
 		type WeightInfo: WeightInfo;
+
+		// --- Configurable Constants ---
+
+        /// Maximum length for a board name.
+        #[pallet::constant]
+        type MaxNameLength: Get<u32>;
+
+        /// Maximum length for a board description.
+        #[pallet::constant]
+        type MaxDescLength: Get<u32>;
+
+        /// Maximum length for board rules.
+        #[pallet::constant]
+        type MaxRulesLength: Get<u32>;
 	}
 
 	/// A storage item for this pallet.
