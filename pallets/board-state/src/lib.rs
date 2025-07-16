@@ -68,6 +68,77 @@ pub mod pallet {
 	use frame_support::pallet_prelude::*;
 	use frame_system::pallet_prelude::*;
 
+	// --- Constants ---
+    /// Define the fixed length for the Content Identifier (CID) in bytes.
+    /// Assuming a 256-bit hash like BLAKE3.
+    pub const CID_LENGTH: usize = 32;
+
+    // --- Type Definitions ---
+
+	/// A struct to store a single block-number. Has all the right derives to store it in storage.
+	/// <https://paritytech.github.io/polkadot-sdk/master/polkadot_sdk_docs/reference_docs/frame_storage_derives/index.html>
+	#[derive(
+		Encode, Decode, MaxEncodedLen, TypeInfo, CloneNoBound, PartialEqNoBound, DefaultNoBound,
+	)]
+	#[scale_info(skip_type_params(T))]
+	pub struct CompositeStruct<T: Config> {
+		/// A block number.
+		pub(crate) block_number: BlockNumberFor<T>,
+	}
+
+    /// Index for identifying boards.
+    pub type BoardIndex = u16;
+    /// Index for identifying threads within a board.
+    pub type ThreadIndex = u16;
+    /// Index for identifying posts within a thread.
+    pub type PostIndex = u16;
+
+    /// Content Identifier: A fixed-size byte array (e.g., 256-bit hash).
+    pub type Cid = [u8; CID_LENGTH];
+
+    /// Use Config associated type for flexibility on description length.
+    type MaxDescLength<T> = <T as Config>::MaxDescLength;
+    /// Use Config associated type for flexibility on rules length.
+    type MaxRulesLength<T> = <T as Config>::MaxRulesLength;
+
+    /// Metadata associated with a board.
+    #[derive(Clone, Encode, Decode, Eq, PartialEq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+    #[scale_info(skip_type_params(T))]
+    pub struct BoardMetadata<T: Config> {
+        /// Name of the board.
+        pub name: BoundedVec<u8, MaxNameLength<T>>,
+        /// Short description of the board's topic.
+        pub description: BoundedVec<u8, MaxDescLength<T>>,
+        /// Rules specific to the board.
+        pub rules: BoundedVec<u8, MaxRulesLength<T>>,
+        /// The number of threads the board has.
+        pub number_of_threads: ThreadIndex,
+        /// The maximum number of posts each thread can have.
+        pub posts_per_thread: PostIndex,
+    }
+
+    /// Metadata associated with a thread.
+    #[derive(Clone, Encode, Decode, Eq, PartialEq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+    #[scale_info(skip_type_params(T))]
+    pub struct ThreadMetadata<T: Config> {
+        /// The block number when the thread was last bumped (created or last post added).
+        pub bump_time: BlockNumberFor<T>,
+        /// The number of active posts in this thread slot. Used to find the next PostIndex.
+        pub post_count: PostIndex,
+    }
+
+    /// Data associated with a post.
+    #[derive(Clone, Encode, Decode, Eq, PartialEq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+    #[scale_info(skip_type_params(T))]
+    pub struct PostData<T: Config> {
+        /// Content Identifier (fixed-size hash).
+        pub cid: Cid, // Now uses the fixed-size array type
+        /// The account ID of the author who created the post.
+        pub author: T::AccountId,
+        /// Block number when the post was created.
+        pub created_at: BlockNumberFor<T>,
+    }
+
 	// The `Pallet` struct serves as a placeholder to implement traits, methods and dispatchables
 	// (`Call`s) in this pallet.
 	#[pallet::pallet]
