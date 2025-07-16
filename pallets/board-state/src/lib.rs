@@ -173,12 +173,51 @@ pub mod pallet {
 		type MaxRulesLength: Get<u32>;
 	}
 
-	/// A storage item for this pallet.
-	///
-	/// In this template, we are declaring a storage item called `Something` that stores a single
-	/// `u32` value. Learn more about runtime storage here: <https://docs.substrate.io/build/runtime-storage/>
+// --- Pallet Storage ---
+
 	#[pallet::storage]
-	pub type Something<T> = StorageValue<_, u32>;
+	#[pallet::getter(fn board)]
+	/// Stores metadata for each board.
+	/// Key: BoardIndex
+	/// Value: BoardMetadata
+	pub type Board<T: Config> = StorageMap<
+		_,
+		Twox64Concat,
+		BoardIndex,
+		BoardMetadata<T>,
+	>;
+
+	#[pallet::storage]
+	#[pallet::getter(fn thread)]
+	/// Stores metadata for each thread within a board.
+	/// Key1: BoardIndex
+	/// Key2: ThreadIndex
+	/// Value: ThreadMetadata
+	pub type Thread<T: Config> = StorageDoubleMap<
+		_,
+		Twox64Concat,
+		BoardIndex,
+		Twox64Concat,
+		ThreadIndex,
+		ThreadMetadata<T>,
+	>;
+
+	#[pallet::storage]
+	#[pallet::getter(fn post)]
+	/// Stores the data for each post slot within a thread.
+	/// Key1: BoardIndex
+	/// Key2: ThreadIndex
+	/// Key3: PostIndex
+	/// Value: PostData
+	pub type Post<T: Config> = StorageNMap<
+		_,
+		(
+			NMapKey<Twox64Concat, BoardIndex>,
+			NMapKey<Twox64Concat, ThreadIndex>,
+			NMapKey<Twox64Concat, PostIndex>,
+		),
+		PostData<T>,
+	>;
 
 	/// Events that functions in this pallet can emit.
 	///
