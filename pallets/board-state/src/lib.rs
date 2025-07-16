@@ -61,7 +61,7 @@ pub mod weights;
 pub use weights::*;
 
 // All pallet logic is defined in its own module and must be annotated by the `pallet` attribute.
-#[frame_support::pallet]
+#[frame_support::pallet(dev_mode)]
 pub mod pallet {
 	// Import various useful types required by all FRAME pallets.
 	use super::*;
