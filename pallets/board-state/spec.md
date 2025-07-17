@@ -120,6 +120,7 @@ Several storage items in the template code were named `Thread` or `Post`, leadin
 ## Changelog
 
 *   **2025-07-17:**
+    *   Refined `Attesters<T>` type alias with correct generic constraints.
     *   Updated `Config` trait to change `AttesterSetSize` to `Get<u32>`.
     *   Added `H256` import.
     *   Refactored `Cid` type to use `H256` and removed `CID_LENGTH` constant.
