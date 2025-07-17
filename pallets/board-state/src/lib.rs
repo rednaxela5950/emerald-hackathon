@@ -220,7 +220,8 @@ pub mod pallet {
 		type MaxRulesLength: Get<u32>;
 
 		/// Maximum number of attesters per shard.
-		type AttesterSetSize: Get<u8>;
+		#[pallet::constant]
+		type AttesterSetSize: Get<u32>;
 	}
 
 // --- Pallet Storage ---

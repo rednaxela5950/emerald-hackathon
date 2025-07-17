@@ -68,7 +68,7 @@ use sp_core::H256;
 
 ## 4. Update Configuration (`Config` trait)
 
-**Status:** Not Started
+**Status:** Complete
 
 **Plan:**
 The `Config` trait will be updated to change the type of `AttesterSetSize`.
@@ -120,6 +120,7 @@ Several storage items in the template code were named `Thread` or `Post`, leadin
 ## Changelog
 
 *   **2025-07-17:**
+    *   Updated `Config` trait to change `AttesterSetSize` to `Get<u32>`.
     *   Added `H256` import.
     *   Refactored `Cid` type to use `H256` and removed `CID_LENGTH` constant.
     *   Added `Vote`, `Commit`, and `RevealedVote` data structures to `lib.rs`.
