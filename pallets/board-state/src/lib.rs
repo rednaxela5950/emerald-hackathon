@@ -92,6 +92,8 @@ pub mod pallet {
 	pub type ThreadIndex = u16;
 	/// Index for identifying posts within a thread.
 	pub type PostIndex = u16;
+	/// Index for identifying posts in a post buffer.
+	pub type BufferIndex = u16;
 
 	/// Content Identifier: A fixed-size byte array (e.g., 256-bit hash).
 	pub type Cid = [u8; CID_LENGTH];
@@ -137,6 +139,18 @@ pub mod pallet {
 		pub author: T::AccountId,
 		/// Block number when the post was created.
 		pub created_at: BlockNumberFor<T>,
+	}
+
+	/// Data associated with a buffered post.
+	#[derive(Clone, Encode, Decode, Eq, PartialEq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+	#[scale_info(skip_type_params(T))]
+	pub struct BufferedPost<T: Config> {
+		/// The core content and metadata of the post.
+		pub data: PostData<T>,
+		/// The index of the board this post belongs to.
+		pub board_index: BoardIndex,
+		/// The index of the thread this post belongs to within its board.
+		pub thread_index: ThreadIndex,
 	}
 
 	// --- Pallet Definition ---
@@ -217,6 +231,34 @@ pub mod pallet {
 			NMapKey<Twox64Concat, PostIndex>,
 		),
 		PostData<T>,
+	>;
+
+	#[pallet::storage]
+	#[pallet::getter(fn buffer)]
+	/// Stores an index for the head of a board post buffer.
+	/// Key: BoardIndex
+	/// Value: BufferIndex
+	pub type Post<T: Config> = StorageMap<
+		_,
+		Twox64Concat,
+		BoardIndex,
+		BufferIndex,
+		ValueQuery,
+	>;
+
+	#[pallet::storage]
+	#[pallet::getter(fn buffered_post)]
+	/// Stores metadata for each thread within a board.
+	/// Key1: BoardIndex
+	/// Key2: BufferIndex
+	/// Value: ThreadMetadata
+	pub type Thread<T: Config> = StorageDoubleMap<
+		_,
+		Twox64Concat,
+		BoardIndex,
+		Twox64Concat,
+		BufferIndex,
+		BufferedPost<T>,
 	>;
 
 	/// Events that functions in this pallet can emit.
