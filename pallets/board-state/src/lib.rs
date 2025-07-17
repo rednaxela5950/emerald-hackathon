@@ -99,7 +99,7 @@ pub mod pallet {
 	pub type Cid = H256;
 
 	/// Shard attester set: A dynamic-size array of AccountIds.
-	pub type Attesters<T> = BoundedVec<AccountId, AttesterSetSize>;
+	pub type Attesters<T: Config> = BoundedVec<T::AccountId, T::AttesterSetSize>;
 
 	/// Use Config associated type for flexibility on description length.
 	type MaxDescLength<T> = <T as Config>::MaxDescLength;

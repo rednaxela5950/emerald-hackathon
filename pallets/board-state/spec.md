@@ -82,7 +82,7 @@ The `BoundedVec` type, which is used for storing collections of a dynamic length
 
 ## 5. Refine Type Aliases
 
-**Status:** Not Started
+**Status:** Complete
 
 **Plan:**
 The `Attesters<T>` type alias will be corrected to use the proper generic constraints.
