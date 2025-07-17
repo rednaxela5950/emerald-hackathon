@@ -35,7 +35,22 @@ The commit-reveal scheme requires attesters to first commit to a vote by submitt
 
 ---
 
-## 2. Add Imports
+## 2. Refactor `Cid` Type
+
+**Status:** Complete
+
+**Plan:**
+The `Cid` type alias will be refactored to use the idiomatic `H256` hash type.
+
+-   Change `pub type Cid = [u8; CID_LENGTH];` to `pub type Cid = H256;`
+-   Remove the `pub const CID_LENGTH: usize = 32;` constant.
+
+**Rationale:**
+Using `sp_core::H256` is the idiomatic way to represent 256-bit hashes in Substrate. This change makes the `Cid` type (representing a Merkle root) consistent with other hashes in the pallet (like the `Commit` hash) and the broader ecosystem. It also provides useful trait implementations for debugging and display. Removing the now-redundant `CID_LENGTH` constant keeps the code clean.
+
+---
+
+## 3. Add Imports
 
 **Status:** Not Started
 
@@ -51,7 +66,7 @@ use sp_core::H256;
 
 ---
 
-## 3. Update Configuration (`Config` trait)
+## 4. Update Configuration (`Config` trait)
 
 **Status:** Not Started
 
@@ -65,7 +80,7 @@ The `BoundedVec` type, which is used for storing collections of a dynamic length
 
 ---
 
-## 4. Refine Type Aliases
+## 5. Refine Type Aliases
 
 **Status:** Not Started
 
@@ -79,7 +94,7 @@ The original type alias was missing the `T: Config` trait bound. This bound is r
 
 ---
 
-## 5. Reorganize Storage
+## 6. Reorganize Storage
 
 **Status:** Not Started
 
@@ -105,6 +120,7 @@ Several storage items in the template code were named `Thread` or `Post`, leadin
 ## Changelog
 
 *   **2025-07-17:**
+    *   Refactored `Cid` type to use `H256` and removed `CID_LENGTH` constant.
     *   Added `Vote`, `Commit`, and `RevealedVote` data structures to `lib.rs`.
     *   Initialized `spec.md`.
     *   Added detailed rationales for each step.

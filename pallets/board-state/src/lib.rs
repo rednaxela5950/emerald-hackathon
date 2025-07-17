@@ -69,9 +69,6 @@ pub mod pallet {
 	use frame_system::pallet_prelude::*;
 
 	// --- Constants ---
-	/// Define the fixed length for the Content Identifier (CID) in bytes.
-	/// Assuming a 256-bit hash like BLAKE3.
-	pub const CID_LENGTH: usize = 32;
 
 	// --- Type Definitions ---
 
@@ -98,7 +95,7 @@ pub mod pallet {
 	pub type BufferIndex = u16;
 
 	/// Content Identifier: A fixed-size byte array (e.g., 256-bit hash).
-	pub type Cid = [u8; CID_LENGTH];
+	pub type Cid = H256;
 
 	/// Shard attester set: A dynamic-size array of AccountIds.
 	pub type Attesters<T> = BoundedVec<AccountId, AttesterSetSize>;
