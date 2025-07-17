@@ -271,10 +271,10 @@ pub mod pallet {
 
 	#[pallet::storage]
 	#[pallet::getter(fn buffered_post)]
-	/// Stores metadata for each thread within a board.
+	/// Stores posts pending availability attestation.
 	/// Key1: BoardIndex
 	/// Key2: BufferIndex
-	/// Value: ThreadMetadata
+	/// Value: BufferedPost<T>
 	pub type Thread<T: Config> = StorageDoubleMap<
 		_,
 		Twox64Concat,
