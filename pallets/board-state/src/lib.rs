@@ -284,6 +284,23 @@ pub mod pallet {
 		BufferedPost<T>,
 	>;
 
+	#[pallet::storage]
+	#[pallet::getter(fn buffered_post_shard)]
+	/// Stores a shard's attestations for a buffered post.
+	/// Key1: BoardIndex
+	/// Key2: BufferIndex
+	/// Key3: ShardIndex
+	/// Value: some sort of vec of commits. TODO: Implement a data structure.
+	pub type Post<T: Config> = StorageNMap<
+		_,
+		(
+			NMapKey<Twox64Concat, BoardIndex>,
+			NMapKey<Twox64Concat, ThreadIndex>,
+			NMapKey<Twox64Concat, PostIndex>,
+		),
+		TODOSTRUCTUREHERE<T>,
+	>;
+
 	/// Events that functions in this pallet can emit.
 	///
 	/// Events are a simple means of indicating to the outside world (such as dApps, chain explorers
