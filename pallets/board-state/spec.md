@@ -11,7 +11,7 @@ This document outlines the necessary changes to the `board-state` pallet to impl
 
 ## 1. Define Data Structures
 
-**Status:** Not Started
+**Status:** Complete
 
 **Plan:**
 The following enums and structs will be added to `lib.rs` to represent the different stages of the attestation process.
@@ -105,6 +105,7 @@ Several storage items in the template code were named `Thread` or `Post`, leadin
 ## Changelog
 
 *   **2025-07-17:**
+    *   Added `Vote`, `Commit`, and `RevealedVote` data structures to `lib.rs`.
     *   Initialized `spec.md`.
     *   Added detailed rationales for each step.
     *   Added status tracking and a changelog.

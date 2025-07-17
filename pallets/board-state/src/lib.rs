@@ -158,6 +158,36 @@ pub mod pallet {
 		pub thread_index: ThreadIndex,
 	}
 
+	/// A vote in the commit phase.
+	#[derive(Clone, Encode, Decode, Eq, PartialEq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+	pub enum Vote {
+		/// The attester votes that the data is available.
+		True,
+		/// The attester votes that the data is not available.
+		False,
+	}
+
+	/// A commit of a vote.
+	#[derive(Clone, Encode, Decode, Eq, PartialEq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+	#[scale_info(skip_type_params(T))]
+	pub struct Commit<T: Config> {
+		/// The hash of the vote.
+		pub hash: H256,
+		/// The block number when the commit was made.
+		pub created_at: BlockNumberFor<T>,
+	}
+
+	/// A revealed vote.
+	#[derive(Clone, Encode, Decode, Eq, PartialEq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+	pub enum RevealedVote {
+		/// The attester voted that the data is available.
+		Aye,
+		/// The attester voted that the data is not available.
+		Nay,
+		/// The revealed vote was invalid.
+		Invalid,
+	}
+
 	// --- Pallet Definition ---
 	// The `Pallet` struct serves as a placeholder to implement traits, methods and dispatchables
 	// (`Call`s) in this pallet.
