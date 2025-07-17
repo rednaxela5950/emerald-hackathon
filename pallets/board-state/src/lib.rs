@@ -92,11 +92,16 @@ pub mod pallet {
 	pub type ThreadIndex = u16;
 	/// Index for identifying posts within a thread.
 	pub type PostIndex = u16;
+	/// Index for identifiying shards of a board.
+	pub type ShardIndex = u8;
 	/// Index for identifying posts in a post buffer.
 	pub type BufferIndex = u16;
 
 	/// Content Identifier: A fixed-size byte array (e.g., 256-bit hash).
 	pub type Cid = [u8; CID_LENGTH];
+
+	/// Shard attester set: A dynamic-size array of AccountIds.
+	pub type Attesters<T> = BoundedVec<AccountId, AttesterSetSize>;
 
 	/// Use Config associated type for flexibility on description length.
 	type MaxDescLength<T> = <T as Config>::MaxDescLength;
@@ -185,6 +190,9 @@ pub mod pallet {
 		/// Maximum length for board rules.
 		#[pallet::constant]
 		type MaxRulesLength: Get<u32>;
+
+		/// Maximum number of attesters per shard.
+		type AttesterSetSize: Get<u8>;
 	}
 
 // --- Pallet Storage ---
@@ -231,6 +239,21 @@ pub mod pallet {
 			NMapKey<Twox64Concat, PostIndex>,
 		),
 		PostData<T>,
+	>;
+
+	#[pallet::storage]
+	#[pallet::getter(fn shard)]
+	/// Stores the attester set for a shard.
+	/// Key1: BoardIndex
+	/// Key2: ShardIndex
+	/// Value: AttesterVec
+	pub type Thread<T: Config> = StorageDoubleMap<
+		_,
+		Twox64Concat,
+		BoardIndex,
+		Twox64Concat,
+		ShardIndex,
+		Attesters<T>,
 	>;
 
 	#[pallet::storage]
