@@ -9,29 +9,18 @@ This document outlines the necessary changes to the `board-state` pallet to impl
 
 ---
 
-## 1. Define Data Structures
+## 1. Define Core Data Structures
 
 **Status:** Complete
 
 **Plan:**
-The following enums and structs will be added to `lib.rs` to represent the different stages of the attestation process.
+The following enums will be added to `lib.rs` to represent the core data of the attestation process.
 
--   **`Vote` enum:** Represents the pre-image of a vote commitment.
-    -   `True`
-    -   `False`
--   **`Commit<T: Config>` struct:** Represents a committed vote stored on-chain.
-    -   `hash: H256`
-    -   `created_at: BlockNumberFor<T>`
--   **`RevealedVote` enum:** Represents a revealed vote, stored on-chain after the reveal phase.
-    -   `Aye`
-    -   `Nay`
-    -   `Invalid`
+-   **`Vote` enum:** Represents the pre-image of a vote commitment (`True`/`False`).
+-   **`RevealedVote` enum:** Represents a revealed vote (`Aye`/`Nay`/`Invalid`).
 
 **Rationale:**
-The commit-reveal scheme requires attesters to first commit to a vote by submitting a hash, and later reveal the original vote.
--   The `Vote` enum represents the choice an attester makes off-chain (`True` or `False`). It is combined with a secret salt, hashed, and then submitted as a `Commit`. The pallet uses the `Vote` enum structure during the reveal phase to verify the attester's submission against the stored hash. It is **never stored directly** on-chain during the commit phase.
--   The `Commit` struct stores the hash on-chain, preventing other attesters from seeing the vote before the reveal phase.
--   The `RevealedVote` enum represents the final, public state of a vote after the reveal phase is complete. `Invalid` is included to handle cases where a revealed vote does not match the committed hash.
+These simple enums form the basis of the commit-reveal scheme. `Vote` is used off-chain by attesters and verified by the pallet during the reveal phase. `RevealedVote` represents the final, on-chain outcome of an attestation.
 
 ---
 
@@ -46,7 +35,7 @@ The `Cid` type alias will be refactored to use the idiomatic `H256` hash type.
 -   Remove the `pub const CID_LENGTH: usize = 32;` constant.
 
 **Rationale:**
-Using `sp_core::H256` is the idiomatic way to represent 256-bit hashes in Substrate. This change makes the `Cid` type (representing a Merkle root) consistent with other hashes in the pallet (like the `Commit` hash) and the broader ecosystem. It also provides useful trait implementations for debugging and display. Removing the now-redundant `CID_LENGTH` constant keeps the code clean.
+Using `sp_core::H256` is the idiomatic way to represent 256-bit hashes in Substrate. This change makes the `Cid` type (representing a Merkle root) consistent with other hashes in the pallet and the broader ecosystem.
 
 ---
 
@@ -62,7 +51,7 @@ use sp_core::H256;
 ```
 
 **Rationale:**
-`H256` is a 256-bit hash type provided by `sp_core`, a core Substrate library. It is the standard type for representing cryptographic hashes within the Substrate ecosystem and is the appropriate type for the `hash` field in our `Commit` struct.
+`H256` is a 256-bit hash type provided by `sp_core` and is required for our data structures.
 
 ---
 
@@ -76,7 +65,7 @@ The `Config` trait will be updated to change the type of `AttesterSetSize`.
 -   Change `type AttesterSetSize: Get<u8>;` to `type AttesterSetSize: Get<u32>;`.
 
 **Rationale:**
-The `BoundedVec` type, which is used for storing collections of a dynamic length up to a fixed bound, requires its bound to be a `u32`. The `AttesterSetSize` constant defines this bound for collections of attesters. Changing its type from `u8` to `u32` is necessary to comply with the trait constraints of `BoundedVec`.
+The `BoundedVec` type requires its bound to be a `u32`. The `AttesterSetSize` constant defines this bound for collections of attesters.
 
 ---
 
@@ -90,42 +79,57 @@ The `Attesters<T>` type alias will be corrected to use the proper generic constr
 -   Change `pub type Attesters<T> = BoundedVec<AccountId, AttesterSetSize>;` to `pub type Attesters<T: Config> = BoundedVec<T::AccountId, T::AttesterSetSize>;`
 
 **Rationale:**
-The original type alias was missing the `T: Config` trait bound. This bound is required to access the associated types `T::AccountId` and `T::AttesterSetSize` which are defined within the `Config` trait. The corrected version ensures that `Attesters<T>` is correctly defined for any type `T` that implements our pallet's `Config`.
+The original type alias was missing the `T: Config` trait bound, which is required to access associated types from the `Config` trait.
 
 ---
 
-## 6. Reorganize Storage
+## 6. Implement Attestation Lifecycle and Storage
 
 **Status:** Not Started
 
 **Plan:**
-The pallet's storage items will be renamed and redefined for clarity, correctness, and to prevent naming conflicts.
+A new `AttestationState` enum will be created to correctly and efficiently model the two-commit-then-reveal lifecycle. The pallet's storage items will be renamed and reorganized for clarity and to resolve naming conflicts.
 
--   Rename `StorageDoubleMap` for shards from `Thread` to `ShardAttesters`.
--   Rename `StorageMap` for the post buffer head from `Post` to `BufferHead`.
--   Rename `StorageDoubleMap` for buffered posts from `Thread` to `BufferedPosts`.
--   Rename `StorageNMap` for buffered post attestations from `Post` to `BufferedPostCommits`.
--   Correct the keys for `BufferedPostCommits` to be `(BoardIndex, BufferIndex, ShardIndex)`.
--   Define the value for `BufferedPostCommits` as `BoundedVec<Commit<T>, T::AttesterSetSize>`.
--   Add a new `StorageNMap` named `RevealedVotes` to store revealed votes with keys `(BoardIndex, BufferIndex, ShardIndex)` and value `BoundedVec<RevealedVote, T::AttesterSetSize>`.
+*   **6a. Define `AttestationState` Enum:**
+    *   **Action:** Add a new enum `AttestationState<T: Config>` to `lib.rs`.
+    *   **Definition:**
+        ```rust
+        pub enum AttestationState<T: Config> {
+            Pending,
+            FirstCommit(H256),
+            SecondCommit(H256, H256),
+            Revealed(RevealedVote),
+        }
+        ```
+
+*   **6b. Fix `ShardAttesters` Storage:**
+    *   **Action:** Rename getter to `shard_attesters` and type to `ShardAttesters`.
+
+*   **6c. Fix `BufferHead` Storage:**
+    *   **Action:** Rename getter to `buffer_head` and type to `BufferHead`.
+
+*   **6d. Fix `BufferedPosts` Storage:**
+    *   **Action:** Rename getter to `buffered_posts` and type to `BufferedPosts`.
+
+*   **6e. Create `Attestations` Storage:**
+    *   **Action:** The old, incorrect `buffered_post_shard` item will be completely replaced with a new `StorageNMap`.
+    *   **Getter:** `attestations`
+    *   **Type:** `Attestations`
+    *   **Keys:** `(BoardIndex, BufferIndex, ShardIndex)`
+    *   **Value:** `BoundedVec<AttestationState<T>, T::AttesterSetSize>`
 
 **Rationale:**
-Several storage items in the template code were named `Thread` or `Post`, leading to ambiguity and naming collisions.
--   **Renaming:** The renames (`ShardAttesters`, `BufferHead`, `BufferedPosts`, `BufferedPostCommits`) provide clear, descriptive names for each storage item, reflecting its actual purpose.
--   **Key Correction:** The keys for `BufferedPostCommits` must correctly map a specific shard's attestations to a specific buffered post. The `(BoardIndex, BufferIndex, ShardIndex)` structure achieves this.
--   **Value Definition:** The values for `BufferedPostCommits` and the new `RevealedVotes` map must be `BoundedVec`s to hold a collection of commits or revealed votes from all attesters in a shard, bounded by `AttesterSetSize`.
+This design is highly efficient and correctly models the two-commit-then-reveal process. The `AttestationState` enum ensures that only the data relevant to the current stage of the process is stored on-chain, making invalid states impossible to represent and discarding commit hashes after they are used. This minimizes storage footprint and I/O. The storage items are renamed to be clear and descriptive, resolving collisions from the template code.
 
 ---
 
 ## Changelog
 
 *   **2025-07-17:**
+    *   **Finalized plan for Step 6:** Decided on a stateful `AttestationState` enum to manage the two-commit lifecycle efficiently.
     *   Refined `Attesters<T>` type alias with correct generic constraints.
     *   Updated `Config` trait to change `AttesterSetSize` to `Get<u32>`.
     *   Added `H256` import.
     *   Refactored `Cid` type to use `H256` and removed `CID_LENGTH` constant.
-    *   Added `Vote`, `Commit`, and `RevealedVote` data structures to `lib.rs`.
+    *   Added `Vote` and `RevealedVote` data structures to `lib.rs`.
     *   Initialized `spec.md`.
-    *   Added detailed rationales for each step.
-    *   Added status tracking and a changelog.
-    *   Clarified the role of the `Vote` enum in the commit-reveal process.
