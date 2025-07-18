@@ -175,6 +175,16 @@ pub mod pallet {
 		Revealed(RevealedVote),
 	}
 
+	/// Data associated with an attestation.
+	#[derive(Clone, Encode, Decode, Eq, PartialEq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+	#[scale_info(skip_type_params(T))]
+	pub struct AttestationData<T: Config> {
+		/// The block number when the post was created.
+		pub created_at: BlockNumberFor<T>,
+		/// The votes for the attestation.
+		pub votes: BoundedVec<AttestationState<T>, T::AttesterSetSize>,
+	}
+
 	/// A revealed vote.
 	#[derive(Clone, Encode, Decode, Eq, PartialEq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
 	pub enum RevealedVote {
