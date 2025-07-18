@@ -335,7 +335,7 @@ pub mod pallet {
 			NMapKey<Twox64Concat, BufferIndex>,
 			NMapKey<Twox64Concat, ShardIndex>,
 		),
-		BoundedVec<AttestationState<T>, T::AttesterSetSize>,
+		AttestationData<T>,
 	>;
 
 	/// Events that functions in this pallet can emit.
