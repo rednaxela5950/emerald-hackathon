@@ -126,6 +126,7 @@ This design is highly efficient and correctly models the two-commit-then-reveal 
 ## Changelog
 
 *   **2025-07-17:**
+    *   **Completed Step 6:** Implemented the `AttestationState` enum and reorganized all storage items for clarity and efficiency.
     *   **Finalized plan for Step 6:** Decided on a stateful `AttestationState` enum to manage the two-commit lifecycle efficiently.
     *   Refined `Attesters<T>` type alias with correct generic constraints.
     *   Updated `Config` trait to change `AttesterSetSize` to `Get<u32>`.
