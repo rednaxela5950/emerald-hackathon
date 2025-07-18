@@ -284,7 +284,7 @@ pub mod pallet {
 	/// Stores an index for the head of a board post buffer.
 	/// Key: BoardIndex
 	/// Value: BufferIndex
-	pub type Post<T: Config> = StorageMap<
+	pub type BufferHead<T: Config> = StorageMap<
 		_,
 		Twox64Concat,
 		BoardIndex,
@@ -298,7 +298,7 @@ pub mod pallet {
 	/// Key1: BoardIndex
 	/// Key2: BufferIndex
 	/// Value: BufferedPost<T>
-	pub type Thread<T: Config> = StorageDoubleMap<
+	pub type BufferedPosts<T: Config> = StorageDoubleMap<
 		_,
 		Twox64Concat,
 		BoardIndex,
