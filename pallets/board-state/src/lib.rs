@@ -224,7 +224,7 @@ pub mod pallet {
 		type AttesterSetSize: Get<u32>;
 	}
 
-// --- Pallet Storage ---
+	// --- Pallet Storage ---
 
 	#[pallet::storage]
 	#[pallet::getter(fn board)]
@@ -271,22 +271,16 @@ pub mod pallet {
 	>;
 
 	#[pallet::storage]
-	#[pallet::getter(fn shard)]
+	#[pallet::getter(fn shard_attesters)]
 	/// Stores the attester set for a shard.
 	/// Key1: BoardIndex
 	/// Key2: ShardIndex
-	/// Value: AttesterVec
-	pub type Thread<T: Config> = StorageDoubleMap<
-		_,
-		Twox64Concat,
-		BoardIndex,
-		Twox64Concat,
-		ShardIndex,
-		Attesters<T>,
-	>;
+	/// Value: Attesters<T>
+	pub type ShardAttesters<T: Config> =
+		StorageDoubleMap<_, Twox64Concat, BoardIndex, Twox64Concat, ShardIndex, Attesters<T>>;
 
 	#[pallet::storage]
-	#[pallet::getter(fn buffer)]
+	#[pallet::getter(fn buffer_head)]
 	/// Stores an index for the head of a board post buffer.
 	/// Key: BoardIndex
 	/// Value: BufferIndex
@@ -299,7 +293,7 @@ pub mod pallet {
 	>;
 
 	#[pallet::storage]
-	#[pallet::getter(fn buffered_post)]
+	#[pallet::getter(fn buffered_posts)]
 	/// Stores posts pending availability attestation.
 	/// Key1: BoardIndex
 	/// Key2: BufferIndex
@@ -314,20 +308,20 @@ pub mod pallet {
 	>;
 
 	#[pallet::storage]
-	#[pallet::getter(fn buffered_post_shard)]
+	#[pallet::getter(fn attestations)]
 	/// Stores a shard's attestations for a buffered post.
 	/// Key1: BoardIndex
 	/// Key2: BufferIndex
 	/// Key3: ShardIndex
-	/// Value: some sort of vec of commits. TODO: Implement a data structure.
-	pub type Post<T: Config> = StorageNMap<
+	/// Value: A bounded vector of attestations.
+	pub type Attestations<T: Config> = StorageNMap<
 		_,
 		(
 			NMapKey<Twox64Concat, BoardIndex>,
-			NMapKey<Twox64Concat, ThreadIndex>,
-			NMapKey<Twox64Concat, PostIndex>,
+			NMapKey<Twox64Concat, BufferIndex>,
+			NMapKey<Twox64Concat, ShardIndex>,
 		),
-		TODOSTRUCTUREHERE<T>,
+		BoundedVec<AttestationState<T>, T::AttesterSetSize>,
 	>;
 
 	/// Events that functions in this pallet can emit.
