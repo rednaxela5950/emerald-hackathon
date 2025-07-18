@@ -1,4 +1,4 @@
-Demo video here: https://photos.google.com/u/1/album/AF1QipOdytRfIAt7He1jRTpEKKkLsE345ECq7jGVVEyg
+Demo video here: https://photos.app.goo.gl/TFfvezgQaaqAmmJAA
 
 Sorry about the broken link in the submission.
 
