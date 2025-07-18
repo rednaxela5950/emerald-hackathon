@@ -85,7 +85,7 @@ The original type alias was missing the `T: Config` trait bound, which is requir
 
 ## 6. Implement Attestation Lifecycle and Storage
 
-**Status:** Not Started
+**Status:** Complete
 
 **Plan:**
 A new `AttestationState` enum will be created to correctly and efficiently model the two-commit-then-reveal lifecycle. The pallet's storage items will be renamed and reorganized for clarity and to resolve naming conflicts.

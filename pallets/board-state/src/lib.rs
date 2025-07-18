@@ -168,11 +168,11 @@ pub mod pallet {
 	/// A commit of a vote.
 	#[derive(Clone, Encode, Decode, Eq, PartialEq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
 	#[scale_info(skip_type_params(T))]
-	pub struct Commit<T: Config> {
-		/// The hash of the vote.
-		pub hash: H256,
-		/// The block number when the commit was made.
-		pub created_at: BlockNumberFor<T>,
+	pub enum AttestationState<T: Config> {
+		Pending,
+		FirstCommit(H256),
+		SecondCommit(H256, H256),
+		Revealed(RevealedVote),
 	}
 
 	/// A revealed vote.
