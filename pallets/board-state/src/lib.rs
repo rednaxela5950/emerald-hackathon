@@ -232,6 +232,10 @@ pub mod pallet {
 		/// Maximum number of attesters per shard.
 		#[pallet::constant]
 		type AttesterSetSize: Get<u32>;
+
+		/// The number of shards each board is divided into.
+		#[pallet::constant]
+		type ShardsPerBoard: Get<u8>;
 	}
 
 	// --- Pallet Storage ---
